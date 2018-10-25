@@ -5,8 +5,7 @@ import re
 import time
 import smtplib
 from email.mime.text import MIMEText
-import chardet   #需要导入这个模块，检测编码格式
-
+import chardet  #需要导入这个模块，检测编码格式
 
 # mailto_list = ['306578968@qq.com']	# 收件人，多个收件人用逗号隔开
 # mail_host = 'smtp.gmail.com'
@@ -31,33 +30,38 @@ import chardet   #需要导入这个模块，检测编码格式
 #         print(str(e))
 #         return False
 
+
 def GetNews():
     url = 'http://jwc.whut.edu.cn/'
     req = urllib.request.Request(url)
     page = urllib.request.urlopen(req).read()
-    p = re.compile(r'<a class="pad_left" href="(.*?)" title=".*?">(.*?)</a><span class="pad_right" >(.*?)</span>')
-    encode_type = chardet.detect(page)  
-    page = page.decode(encode_type['encoding']) #进行相应解码，赋给原标识符（变量）
+    p = re.compile(
+        r'<a class="pad_left" href="(.*?)" title=".*?">(.*?)</a><span class="pad_right" >(.*?)</span>'
+    )
+    encode_type = chardet.detect(page)
+    page = page.decode(encode_type['encoding'])  #进行相应解码，赋给原标识符（变量）
     items = p.findall(page)
     news = []
     for item in items:
         # if(item[2] == time.strftime('%Y-%m-%d',time.localtime(time.time()))):  #查询当天的新闻则开启if语句
-            news.append([item[0], item[1], item[2]])
+        news.append([item[0], item[1], item[2]])
     return news
+
 
 news = GetNews()
 if news:
-    sub = 'WHUT教务处最新通知推送（Anotherhome提供）' + time.strftime('%Y-%m-%d',time.localtime(time.time()))
+    sub = 'WHUT教务处最新通知推送（Anotherhome提供）' + time.strftime(
+        '%Y-%m-%d', time.localtime(time.time()))
     content = 'WHUT最新通知:<br><br>'
     for item in news:
         content += item[2]
-        print(item[2],'\n')
+        print(item[2], '\n')
         content += '  '
         content += item[1]
         content += '  '
-        print(item[1],'\n')
+        print(item[1], '\n')
         content += item[0]
-        print(item[0],'\n')
+        print(item[0], '\n')
         content += '<br>'
         content += ' （校内资源，请用校园网或VPN访问）  <br><br> 推送服务由<a href="http://www.anotherhome.net/" target="_blank">Anotherhome</a>提供. 代码托管在<a href="https://github.com/DIYgod/WHUTNews" target="_blank">Github</a>上.'
     # if send_mail(mailto_list, sub, content):
@@ -66,5 +70,3 @@ if news:
     #     print('Fail')
 else:
     print('None')
-
-
