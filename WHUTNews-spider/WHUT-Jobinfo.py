@@ -16,31 +16,28 @@ def getHTMLText(url):
 
 def getNewsList(html, n_list):
     soup = BeautifulSoup(html, 'html.parser')
-    div = soup.find('div', attrs={'class': 'art_list'})
-    for li in div.find_all('li'):
-        for i in li.find_all('i'):
-            news_date = re.sub(r'\s','',i.get_text())
+    ul = soup.find('ul', attrs={'class': 'col_con_list'})
+    for li in ul.find_all('li'):
+        for span in li.find_all('span'):
+            news_date = re.sub(r'\s','',span.get_text())
         for a in li.find_all('a'):
             news_title = re.sub(r'\s','',a.get_text())
-            news_url = "http://st.whut.edu.cn/tzgg" + a.get('href')[1:]
+            news_url = "http://scc.whut.edu.cn/" + a.get('href')
         n_list.append([news_date, news_title, news_url])
 
 
 def printNewsList(n_list):
     n_list = n_list[::-1]
-    tplt = "{0:^4}\t{1:{3}^35}\t{2:^20}"
+    tplt = "{0:^5}\t{1:{3}^25}\t{2:^10}"
     for g in n_list:
-        print(tplt.format(g[0], g[1], g[2], chr(12288)))
+        print(tplt.format(g[0], g[1], g[2],chr(12288)))
 
 
 def main():
     depth = 2
-    for i in range(depth, -1, -1):
+    for i in range(depth, 0, -1):
         news = []
-        if i == 0:
-            url = 'http://st.whut.edu.cn/tzgg/index.shtml'
-        else:
-            url = 'http://st.whut.edu.cn/tzgg/index_{}.shtml'.format(str(i))
+        url='http://scc.whut.edu.cn/infoList.shtml?tid=1001&searchForm=&pageNow={}'.format(i)
         try:
             html = getHTMLText(url)
             getNewsList(html, news)
