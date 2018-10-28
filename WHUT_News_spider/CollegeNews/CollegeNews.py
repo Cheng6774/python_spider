@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import csv
 
 
 def getHTMLText(url):
@@ -25,7 +26,6 @@ def getNewsList(html, n_list):
             news_url = "http://st.whut.edu.cn/tzgg" + a.get('href')[1:]
         n_list.append([news_date, news_title, news_url])
 
-
 def printNewsList(n_list):
     n_list = n_list[::-1]
     tplt = "{0:^4}\t{1:{3}^35}\t{2:^20}"
@@ -33,21 +33,31 @@ def printNewsList(n_list):
         print(tplt.format(g[0], g[1], g[2], chr(12288)))
 
 
+def writeCSV(n_list):
+    with open ('交通学院新闻.csv','w') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["日期","标题","链接"])
+        writer.writerows(n_list)
+
+
 def main():
-    depth = 2
+    depth = 1
+    total_news = []
     for i in range(depth, -1, -1):
-        news = []
+        page_news = []
         if i == 0:
             url = 'http://st.whut.edu.cn/tzgg/index.shtml'
         else:
             url = 'http://st.whut.edu.cn/tzgg/index_{}.shtml'.format(str(i))
         try:
             html = getHTMLText(url)
-            getNewsList(html, news)
-            printNewsList(news)
-            print("--------------------------------------------------------")
+            getNewsList(html, page_news)
+            total_news =  page_news + total_news
+            printNewsList(page_news)
+            print("--------------------------------------------------------第"\
+            ,i+1,"页输出完毕-------------------------------------------------")
         except:
             continue
-
-
+    writeCSV(total_news)
+    
 main()
