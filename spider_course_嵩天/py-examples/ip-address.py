@@ -13,4 +13,3 @@ try:
     print(r.text[-500:])
 except:
     print('error')
-
