@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import re
 import csv
 import xlsxwriter
-import lxml
 
 
 def getHTMLText(url):
@@ -21,21 +20,18 @@ def getHTMLText(url):
 
 
 def getNewsList(html, n_list):
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = BeautifulSoup(html, 'lxml')
     ul = soup.find('ul', attrs={'class': 'col_con_list'})
     for li in ul.find_all('li'):
         for span in li.find_all('span'):
-            # news_date = re.sub(r'\s', '', span.get_text())
-            news_date = re.match(r'[【](.*?)[】](.*?)', span.get_text())
+            news_date = re.match(r'[【](.*?)[】]', span.get_text())
             news_date = news_date.group(1)
         for a in li.find_all('a'):
-            title = re.sub(r'\s', '', a.get_text())
-            subject = re.match(r'[【](.*?)[】]',title)
-            news_subject = subject.group(1)
-            company = re.match(r'[【].*[】](.*)',title)
-            news_company = company.group(1)
+            news_subject = re.match(r'[【](.*?)[】]', a.get_text())
+            news_subject = news_subject.group(1)
+            news_company = re.match(r'[【].*[】](.*)', a.get_text())
+            news_company = news_company.group(1)
             news_url = "http://scc.whut.edu.cn/" + a.get('href')
-        # n_list.append([news_date, news_title, news_url])
         n_list.append([news_date, news_subject, news_company, news_url])
 
 
@@ -43,13 +39,13 @@ def printNewsList(n_list):
     n_list = n_list[::-1]
     tplt = "{0:^4}\t{1:{4}^10}\t{2:^30}\t{3:^35}"
     for g in n_list:
-        print(tplt.format(g[0], g[1], g[2], g[3],chr(12288)))
+        print(tplt.format(g[0], g[1], g[2], g[3], chr(12288)))
 
 
 def writeCSV(n_list):
     with open('学校就业新闻.csv', 'w') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["日期", "行业","公司","链接"])
+        writer.writerow(["日期", "行业", "公司", "链接"])
         writer.writerows(n_list)
 
 
@@ -60,12 +56,12 @@ def writeXLS(n_list):
     sh.set_column('C:D', 80)
     row = 0
     col = 0
-    for date, subject,company, url in n_list:
+    for date, subject, company, url in n_list:
         if row == 0:
-            sh.write(0,0,"日期")
-            sh.write(0,1,"行业")
-            sh.write(0,2,"公司")
-            sh.write(0,0,"链接")
+            sh.write(0, 0, "日期")
+            sh.write(0, 1, "行业")
+            sh.write(0, 2, "公司")
+            sh.write(0, 0, "链接")
         sh.write(row, col, date)
         sh.write(row, col + 1, subject)
         sh.write(row, col + 2, company)
